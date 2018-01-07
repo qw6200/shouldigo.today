@@ -1,0 +1,341 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='font-awesome-4.7.0/css/font-awesome.min.css') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+</head>
+
+<body class="bg-dark">
+    <title>{{ eventName }} - Should I Go?</title>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="mainnav">
+        <div class="container">
+        <!-- <a class="navbar-brand" href="#">Home</a> -->
+        <a class="navbar-brand" href="/">
+            <span class="fa fa-home" style="font-size:1.5em;"></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <!-- TODO: are there more settings we want to include than just what's in editUser?
+                    ...probably stuff like email preferences, etc-->
+                    <a class="nav-link" href="/editUser" data-btn-target="settings-btn-floor"><span class="fa fa-user" style="font-size:1.5em;"></span></a>
+                    <div class="nav-btn-floor bg-dark" id="settings-btn-floor"></div>
+                </li>
+                <li class="nav-item">
+                    <!-- <a class="nav-link" href="/logout">Log Out</a> -->
+                    <a class="nav-link" href="/logout"  data-btn-target="logout-btn-floor"><span class="fa fa-power-off" style="font-size:1.5em;"></span></a>
+                    <div class="nav-btn-floor bg-dark" id="logout-btn-floor"></div>
+                </li>
+            </ul>
+            <ul class="navbar-nav my-2 my-lg-0">
+                <li class="nav-item">
+                    <!-- <a class="nav-link" href="/createEvent">+ New Event</a> -->
+                    <a class="nav-link" href="/createEvent" data-btn-target="addevent-btn-floor"><span class="fa fa-plus" style="font-size:1.5em;"></span></a>
+                    <div class="nav-btn-floor bg-dark" id="addevent-btn-floor"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    </nav>
+
+    <div class="container main-container">
+            <div class="container-fluid" id="splashpagewrapper">
+
+                {% if correctPass == false %}
+                <br><br>
+                <div class="container text-center" id="titlewrapper">
+                    <!-- <div class="container" style="width:70%;" id="loginform"> -->
+                    <!-- <div class="container"> -->
+                    {% if badPass == true %}
+                    Sorry, that password is incorrect!
+                    {% endif %}
+                    <form action="/{{eventUrl}}" method="POST">
+                        This event is password protected!  Please enter the password below:<br><br>
+                        <input type="password" name="password" placeholder="Password" maxlength="100"><br><br>
+                        <input class="btn btn-primary" type="submit" id="passbtn" value="View Event">
+                    </form>
+
+                </div>
+                {% else %}
+
+                {% if userLoggedIn == false %}
+
+                <h1>{{eventName}}</h1>
+                <!-- pre-wrap asks it to render the whitespace exactly as it is in the raw text, so it preserves new lines -->
+                <div style="white-space: pre-wrap;">{{eventDesc}}</div><br><br>
+                <!-- <a href="/">Return</a><br><br><br> -->
+
+
+                <div class="card" style="border-radius:3px 3px 0px 0px;" id="commentscard">
+                    <div class="card-header" role="tab" id="headingOne">
+                      <h5 class="mb-0">
+                            <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <!-- Comments -->
+                                <span class="if-collapsed">
+                                    <i class="fa fa-caret-up pull-left" aria-hidden="true"></i>
+                                    Comments
+                                </span>
+                                <span class="if-not-collapsed">
+                                    <i class="fa fa-caret-down pull-left" aria-hidden="true"></i>
+                                    Comments
+                                </span>
+                            </a>
+                        </h5>
+                    </div>
+
+                    <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                        {% if comments|length == 0 %}
+                        <div class="card-body comment" style="color:black;">
+                            <i>No comments yet, log in to add one!</i>
+                        </div>
+                        <div class="commentseparator" style="background-color:#999999;height:1px;"></div>
+                        {% endif %}
+                        {% for username,comment,time in comments %}
+                        <div class="card-body comment" style="color:black;">
+                            <b><u>{{ username }}</u></b> -- {{ time }}<br>
+                            <div style="white-space: pre-wrap;">{{ comment }}</div>
+
+                            <!-- the curlybrace-pound sign thing comments out jinja2 code -->
+
+                        </div>
+                        <div class="commentseparator" style="background-color:#999999;height:1px;"></div>
+                        {#{% if not loop.last %}#}
+                        {#{% endif %}#}
+                        {% endfor %}
+                        <script>
+                            var commentlines = document.getElementsByClassName("commentseparator");
+                            var finalline = commentlines[commentlines.length-1];
+                            finalline.parentNode.removeChild(finalline);
+
+                            var comments = document.getElementsByClassName("comment");
+                            var lastcomment = comments[comments.length-1];
+                            lastcomment.classname += " rounded-0";
+                        </script>
+                    </div>
+                </div>
+
+                <p></p>
+
+                <p> See who's coming and more by logging in! </p>
+                <a href={{ url_for("splashScreen")}} class="btn btn-primary">Login</a>
+
+
+                {% else %}
+
+
+                <h1>{{eventName}}</h1>
+                <!-- pre-wrap asks it to render the whitespace exactly as it is in the raw text, so it preserves new lines -->
+                <div style="white-space: pre-wrap;">{{eventDesc}}</div><br><br>
+                <!-- <a href="/">Return</a><br><br><br> -->
+
+                <div class="container text-center">
+                {% if userLoggedIn == true %}
+                {% if going == "yes" %}
+                <!-- Yes button is blue, others grey/secondary -->
+                <p><div class="btn-group" role="group">
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl, going="clear", _external=True )}} class="btn btn-primary">I'm Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="maybe", _external=True )}} class="btn btn-secondary">Maybe Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="no", _external=True )}} class="btn btn-secondary">Not Going</a>
+                </div></p>
+                {% elif going == "maybe" %}
+                <p><div class="btn-group" role="group">
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="yes", _external=True )}} class="btn btn-secondary">I'm Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="clear", _external=True )}} class="btn btn-primary">Maybe Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="no", _external=True )}} class="btn btn-secondary">Not Going</a>
+                </div></p>
+                {% elif going == "no" %}
+                <p><div class="btn-group" role="group">
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="yes", _external=True )}} class="btn btn-secondary">I'm Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="maybe", _external=True )}} class="btn btn-secondary">Maybe Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="clear", _external=True )}} class="btn btn-primary">Not Going</a>
+                </div></p>
+                {% else %}
+                <p><div class="btn-group" role="group">
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="yes", _external=True )}} class="btn btn-secondary">I'm Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="maybe", _external=True )}} class="btn btn-secondary">Maybe Going</a>
+                    <a href={{ url_for("showEvent", eventUrl=eventUrl,  going="no", _external=True )}} class="btn btn-secondary">Not Going</a>
+                </div></p>
+                {% endif %}
+
+                </div>
+
+                Users who said yes:
+                {% if not yesUsers %}
+                <i>No one yet, keep checking!</i>
+                {% endif %}
+                {% for user in yesUsers %}
+                {{ user }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                <br>
+                Users who said maybe:
+                {% if not maybeUsers %}
+                <i>No one yet</i>
+                {% endif %}
+                {% for user in maybeUsers %}
+                {{ user }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                <br>
+                Users who said no:
+                {% if not noUsers %}
+                <i>No one yet</i>
+                {% endif %}
+                {% for user in noUsers %}
+                {{ user }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                <br><br><br>
+
+                <div class="card" style="border-radius:3px 3px 0px 0px;" id="commentscard">
+                    <div class="card-header" role="tab" id="headingOne">
+                      <h5 class="mb-0">
+                            <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <!-- Comments -->
+                                <span class="if-collapsed">
+                                    <i class="fa fa-caret-up pull-left" aria-hidden="true"></i>
+                                    Comments
+                                </span>
+                                <span class="if-not-collapsed">
+                                    <i class="fa fa-caret-down pull-left" aria-hidden="true"></i>
+                                    Comments
+                                </span>
+                            </a>
+                        </h5>
+                    </div>
+
+                    <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                        {% if comments|length == 0 %}
+                        <div class="card-body comment" style="color:black;">
+                            <i>No comments yet, click below to add one!</i>
+                        </div>
+                        <div class="commentseparator" style="background-color:#999999;height:1px;"></div>
+                        {% endif %}
+                        {% for username,comment,time in comments %}
+                        <div class="card-body comment" style="color:black;">
+                            <b><u>{{ username }}</u></b> -- {{ time }}<br>
+                            <div style="white-space: pre-wrap;">{{ comment }}</div>
+
+                            <!-- the curlybrace-pound sign thing comments out jinja2 code -->
+
+                        </div>
+                        <div class="commentseparator" style="background-color:#999999;height:1px;"></div>
+                        {#{% if not loop.last %}#}
+                        {#{% endif %}#}
+                        {% endfor %}
+                        <script>
+                            var commentlines = document.getElementsByClassName("commentseparator");
+                            var finalline = commentlines[commentlines.length-1];
+                            finalline.parentNode.removeChild(finalline);
+
+                            var comments = document.getElementsByClassName("comment");
+                            var lastcomment = comments[comments.length-1];
+                            lastcomment.classname += " rounded-0";
+                        </script>
+                    </div>
+                </div>
+
+                <!--<form method="POST">
+                    <textarea class="form-control" name="comment" rows="3" placeholder="Add your comment here!"></textarea>
+                    <input type="submit" class="btn btn-primary" value="Submit">
+                </form>
+                <!- - TODO: what if there are lots of comments?  Some sort of an ajax-y "load more" button? -->
+
+                <form method="POST">
+                    <textarea id=comment class="form-control" style="border-radius: 0px 0px 3px 3px;" name="comment" rows="3" placeholder="Add your comment here!" maxlength="1000" pattern="[^~]*"></textarea>
+                    <input type="submit" class="btn btn-primary" value="Submit">
+                </form>
+                {% if owner == false %}
+                {% if subscribed == false %}
+                Click below to recieve updates about this event!
+                <form method = "POST">
+                    <input type="submit" name="follow" value="Follow this event" class="btn btn-primary">
+                </form>
+                {% else %}
+                <!-- TODO: some way to unfollow? -->
+                You already follow this event!
+                <form method = "POST">
+                    <input type="submit" name="unfollow" value="Unfollow this event" class="btn btn-primary">
+                </form>
+                {% endif %}
+                {% endif %}
+                {% endif %}
+                {% if owner==true %}
+                You own this event! Click below to edit or delete it:
+                <p><a href={{ url_for("showEvent", eventUrl=eventUrl, wantsToEdit="True", _external=True )}} class="btn btn-primary">Edit</a>
+                    <!-- <a href={{ url_for("showEvent", eventUrl=eventUrl, wantsToDelete="True", _external=True )}} class="btn btn-primary" style="background-color: red;border-color: red;">Delete</a> -->
+                </p>
+
+                <!-- <form method = "POST">
+                <input type="submit" value="Edit">
+            </form> -->
+            {% endif %}
+            {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- script imports -->
+    <script src="{{ url_for('static',filename='js/jquery-3.2.1.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/nav.js') }}"type="text/javascript"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+    <script>
+           $( document ).ready( function() {
+            var errorMessage = "Please remove all tilde (~) characters.";
+
+            $( this ).find( "textarea" ).on( "input change propertychange", function() {
+
+                var pattern = $( this ).attr( "pattern" );
+
+                if(typeof pattern !== typeof undefined && pattern !== false)
+                {
+                    var patternRegex = new RegExp( "^" + pattern.replace(/^\^|\$$/g, '') + "$", "g" );
+
+                    hasError = !$( this ).val().match( patternRegex );
+
+                    if ( typeof this.setCustomValidity === "function")
+                    {
+                        this.setCustomValidity( hasError ? errorMessage : "" );
+                    }
+                    else
+                    {
+                        $( this ).toggleClass( "error", !!hasError );
+                        $( this ).toggleClass( "ok", !hasError );
+
+                        if ( hasError )
+                        {
+                            $( this ).attr( "title", errorMessage );
+                        }
+                        else
+                        {
+                            $( this ).removeAttr( "title" );
+                        }
+                    }
+                }
+
+            });
+        });
+
+    </script>
+    <script>
+        function isEmpty(in){
+            if(in.length = 0){
+                return true
+            }else{
+                return false
+            }
+        }
+    </script>
+        }
+
+</body>
+
+</html>
